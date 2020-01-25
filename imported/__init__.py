@@ -1,5 +1,8 @@
 """imported module"""
 
+import types
+
+
 def has_version(m):
     """Check if module has version attribute."""
     try:
