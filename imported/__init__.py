@@ -1,19 +1,20 @@
 """imported module."""
 
+from inspect import getmembers, ismodule
 from types import ModuleType
 from typing import Dict, Optional, Union
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 version_types = Union[str, int, float]
 
 
 def get_version(m: ModuleType) -> Optional[version_types]:
     """Get conventional version attribute from module, if any."""
-    if hasattr(m, '__version__'):
-        return getattr(m, '__version__')
-    if hasattr(m, 'VERSION'):
-        return getattr(m, 'VERSION')
+    VERSION_ATTRS = ['__version__', 'VERSION', 'version', ]
+    for v in VERSION_ATTRS:
+        if hasattr(m, v):
+            return getattr(m, v)
     return None
 
 
@@ -31,14 +32,16 @@ def get_imported(context: dict) -> Dict[str, Optional[version_types]]:
     conventional version attributes.
     Context is typically globals() or locals().
     """
+    imports = {}
     try:
-        imports = {
-            val.__name__: get_version(val)
-            for name, val in context.items()
-            if isinstance(val, ModuleType) and has_version(val)
-        }
-    except Exception:
-        imports = {}
+        for name, val in context.items():
+            if ismodule(val):
+                imports.update(get_imported(dict(getmembers(val))))
+                if has_version(val):
+                    n = getattr(val, '__name__', name)
+                    imports.update({n: get_version(val)})
+    except AttributeError:
+        pass
     return imports
 
 

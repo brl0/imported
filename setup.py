@@ -14,7 +14,7 @@ EXTRAS_REQUIRES: Dict[str, List[str]] = {
 
 
 def find_version(fname: Union[Path, str]) -> str:
-    """Attempt to find the version number in the file names fname.
+    """Attempt to find the version number in the file fname.
 
     Raises RuntimeError if not found.
     """
