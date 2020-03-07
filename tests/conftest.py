@@ -12,5 +12,12 @@ class Module:
 
 @pytest.fixture
 def module():
-    """Pytest fixture."""
+    """Pytest module fixture."""
     yield Module
+
+
+@pytest.fixture
+def context():
+    """Pytest module fixture."""
+    import sys
+    yield locals()

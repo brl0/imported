@@ -1,10 +1,10 @@
 """imported module."""
-
 from inspect import getmembers, ismodule
 from types import ModuleType
 from typing import Dict, Optional, Union
 
-__version__ = '0.0.3'
+
+__version__ = '0.0.4'
 
 version_types = Union[str, int, float]
 
@@ -25,7 +25,8 @@ def has_version(m: ModuleType) -> bool:
     return False
 
 
-def get_imported(context: dict) -> Dict[str, Optional[version_types]]:
+def get_imported(context: dict, limit: int = 0,
+                 depth: int = 0) -> Dict[str, Optional[version_types]]:
     """Create list of imported modules in given context.
 
     Only outputs modules from given context that have
@@ -36,21 +37,24 @@ def get_imported(context: dict) -> Dict[str, Optional[version_types]]:
     try:
         for name, val in context.items():
             if ismodule(val):
-                imports.update(get_imported(dict(getmembers(val))))
-                if has_version(val):
+                if depth < limit:
+                    imports.update(
+                        get_imported(dict(getmembers(val)), limit, depth + 1))
+                f = getattr(val, '__file__', name)
+                if has_version(val) and f not in imports.values():
                     n = getattr(val, '__name__', name)
-                    imports.update({n: get_version(val)})
+                    imports.update({n: f})
     except AttributeError:
         pass
     return imports
 
 
-def get_imports(context: dict) -> str:
+def get_imports(context: dict, limit: int = 0) -> str:
     """Create string list of imported modules in given context.
 
     Only outputs modules from given context that have
     conventional version attributes.
     Context is typically globals() or locals().
     """
-    imports = get_imported(context)
+    imports = get_imported(context, limit)
     return ",".join(sorted(set(imports.keys())))
