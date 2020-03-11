@@ -1,10 +1,11 @@
 """imported module."""
+from functools import lru_cache
 from inspect import getmembers, ismodule
 from types import ModuleType
 from typing import Dict, Optional, Union
 
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 version_types = Union[str, int, float]
 
@@ -25,6 +26,7 @@ def has_version(m: ModuleType) -> bool:
     return False
 
 
+#@lru_cache(None)
 def get_imported(context: dict, limit: int = 0,
                  depth: int = 0) -> Dict[str, Optional[version_types]]:
     """Create list of imported modules in given context.
@@ -37,6 +39,7 @@ def get_imported(context: dict, limit: int = 0,
     try:
         for name, val in context.items():
             if ismodule(val):
+                #print(name)
                 if depth < limit:
                     imports.update(
                         get_imported(dict(getmembers(val)), limit, depth + 1))
