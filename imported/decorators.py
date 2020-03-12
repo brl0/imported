@@ -12,18 +12,16 @@ class LogPrinter:
 
     https://wiki.python.org/moin/PythonDecoratorLibrary#Redirects_stdout_printing_to_python_standard_logging%2E
     '''
-    def __init__(self, level=logging.INFO, name=''):
+    def __init__(self, level=logging.INFO):
         '''Grabs the specific logger to use for logprinting.'''
-        logger.remove()
-        logger.add(sys.stdout, level=level, enqueue=True)
-        self.ilogger = logger.opt(lazy=True)
+        self.ilogger = logger
         self.level = level
-        self.name = name
-        self.ilogger.log(level, name)
+        logging.basicConfig()
+        self.ilogger.log(level, f'Level: {level}')
 
     def write(self, text):
         '''Logs written output to a specific logger'''
-        self.ilogger.log(self.level, f'{self.name}|print\n{text}')
+        self.ilogger.opt(depth=1).log(self.level, f':print: - {text}')
 
 
 def logprint(*args, level=logging.INFO, name='', **kwargs):
@@ -36,7 +34,7 @@ def logprint(*args, level=logging.INFO, name='', **kwargs):
         @wraps(func)
         def pwrapper(*arg, **kwargs):
             stdobak = sys.stdout
-            lpinstance = LogPrinter(level, name)
+            lpinstance = LogPrinter(level)
             sys.stdout = lpinstance
             try:
                 return timer(func)(*arg, **kwargs)
@@ -80,21 +78,29 @@ class InterceptHandler(logging.Handler):
             frame = frame.f_back
             depth += 1
 
-        logger.opt(depth=depth,
-                   exception=record.exc_info).log(level, record.getMessage())
+        logger.opt(
+            lazy=True,
+            depth=depth,
+            exception=record.exc_info,
+            ).log(level, record.getMessage())
 
-
-logging.basicConfig(handlers=[InterceptHandler()], level=0)
+    @staticmethod
+    def basicConfig(level=0):
+        logging.basicConfig(handlers=[InterceptHandler()], level=level)
+        logger.remove()
+        logger.add(sys.stdout, level=level, enqueue=True)
 
 
 if __name__ == '__main__':
     from time import sleep
 
-    @logprint(level='INFO', name='func')
+    InterceptHandler.basicConfig('INFO')
+
+    @logprint(level=logging.DEBUG)
     def func(s: str):
         logger.info('test logger')
-        sleep(1)
         logging.info('test logging')
+        sleep(1)
         print(s)
 
     func(__name__)
