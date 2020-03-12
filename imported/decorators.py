@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     InterceptHandler.basicConfig('INFO')
 
-    @logprint(level=logging.INFO)
+    @logprint(level=logging.DEBUG)
     def func(s: str):
         logger.info('test logger')
         logging.info('test logging')
