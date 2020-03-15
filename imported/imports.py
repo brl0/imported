@@ -4,7 +4,6 @@ from inspect import getmembers, ismodule
 from types import ModuleType
 from typing import Dict, Optional, Union
 
-from decorators import *
 
 version_types = Union[str, int, float]
 
@@ -29,25 +28,6 @@ def has_version(m: ModuleType) -> bool:
     return False
 
 
-visited = set()
-
-
-@rec_cycle
-def process_module(m: ModuleType):
-    output = {}
-    n = getattr(m, '__name__')
-    visited.add(n)
-    print(n)
-    if has_version(m):
-        version = get_version(m)
-        output.update({n: version})
-    for name, val in getmembers(m):
-        n = getattr(m, '__name__', name)
-        if ismodule(val) and n not in visited:
-            output.update(process_module(val))
-    return output
-
-
 def get_imported(context: dict) -> Dict[str, Optional[version_types]]:
     """Create list of imported modules in given context.
 
@@ -55,14 +35,21 @@ def get_imported(context: dict) -> Dict[str, Optional[version_types]]:
     conventional version attributes.
     Context is typically globals() or locals().
     """
-    imports = {}
-    try:
-        for val in context.values():
-            if ismodule(val):
-                imports.update(process_module(val))
-    except AttributeError:
-        pass
-    return imports
+    visited = dict()
+
+    def process_module(*args):
+        (name, module), = args
+        n = getattr(module, '__name__', name)
+        if ismodule(module) and n not in visited:
+            visited.update({n: get_version(module)})
+            try:
+                [*map(process_module, getmembers(module, ismodule))]
+            except:
+                pass
+
+    [*map(process_module, context.items())]
+
+    return [*filter(lambda _: _[1] is not None, visited.items())]
 
 
 def get_imports(context: dict, limit: int = 0) -> str:
@@ -82,6 +69,4 @@ if __name__ == '__main__':
     from pprint import pprint
     from pathlib import Path
     import pandas as pd
-    import numpy as np
-    from decorators import *
     pprint(get_imported(globals()))

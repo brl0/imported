@@ -9,12 +9,16 @@ from loguru import logger
 
 
 class LogPrinter:
-    '''LogPrinter class which serves to emulates a file object and logs whatever it gets sent to a Logger object at the level defined or INFO as default.
+    """LogPrinter class.
 
-    https://wiki.python.org/moin/PythonDecoratorLibrary#Redirects_stdout_printing_to_python_standard_logging%2E
-    '''
+    Emulates a file object and logs whatever it gets sent to a
+    Logger object at the level defined or INFO as default.
+
+    https://wiki.python.org/moin/PythonDecoratorLibrary#Redirects_stdout_printing_to_python_standard_logging%2E  # noqa
+    """
+
     def __init__(self, level=logging.INFO):
-        '''Grabs the specific logger to use for logprinting.'''
+        """Grabs the specific logger to use for logprinting."""
         logging.basicConfig(handlers=[self.InterceptHandler()], level=level)
         logger.remove()
         logger.add(sys.stdout, level=level, enqueue=True)
@@ -23,17 +27,18 @@ class LogPrinter:
         self.ilogger = logger
 
     def write(self, text):
-        '''Logs written output to a specific logger'''
+        """Log written output to a specific logger."""
         self.ilogger.opt(depth=1).log(self.level, f':print: - {text}')
 
     @staticmethod
     def logprint(*args, level=logging.INFO, name='', **kwargs):
         """Create decorator factory for logprint."""
         def logprintinfo(func):
-            '''Wraps a method so that any calls made to print get logged instead.
+            """Wrap a method so that calls to print get logged.
 
-            https://wiki.python.org/moin/PythonDecoratorLibrary#Unimplemented_function_replacement
-            '''
+            https://wiki.python.org/moin/PythonDecoratorLibrary#Unimplemented_function_replacement  # noqa
+            """
+
             @wraps(func)
             def pwrapper(*arg, **kwargs):
                 stdobak = sys.stdout
@@ -48,9 +53,13 @@ class LogPrinter:
         return logprintinfo
 
     class InterceptHandler(logging.Handler):
-        """https://github.com/Delgan/loguru#entirely-compatible-with-standard-logging"""
+        """Intercepts logging calls.
+
+        https://github.com/Delgan/loguru#entirely-compatible-with-standard-logging  # noqa
+        """
+
         def emit(self, record):
-            # Get corresponding Loguru level if it exists
+            """Get corresponding Loguru level if it exists."""
             try:
                 level = logger.level(record.levelname).name
             except ValueError:
@@ -88,34 +97,13 @@ def timer(func):
     return wrapper
 
 
-def rec_cycle(func):
-    """Try to prevent recursive cycles."""
-    r = dict()
-    def tuplizer(*args, **kwargs):
-        t = [*args]
-        t.extend(list(kwargs.items()))
-        return tuple(t)
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        t = tuplizer(*args, **kwargs)
-        if not t in r.keys():
-            results = func(*args, **kwargs)
-            r[t] = results
-        else:
-            print(f"Caught {t}")
-            results = r[t]
-        return results
-
-    return wrapper
-
-
 if __name__ == '__main__':
     from time import sleep
 
     @LogPrinter.logprint(level=logging.INFO)
     @timer
     def func(s: str):
+        """Test wrappers."""
         logger.info('test logger')
         logging.info('test logging')
         sleep(1)
