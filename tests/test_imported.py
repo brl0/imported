@@ -5,7 +5,7 @@ import imported
 
 def test_get_version(module):
     """Test get_version function."""
-    assert imported.get_version(module) == '1'
+    assert imported.get_version(module) == "1"
 
 
 def test_has_version(module):
@@ -19,6 +19,7 @@ def test_get_imported(context):
     from pathlib import Path
     import os
     import sys
+
     imported.get_imported(locals(), 10)
     assert True
 

@@ -11,9 +11,9 @@ version_types = Union[str, int, float]
 def get_version(m: ModuleType) -> Optional[version_types]:
     """Get conventional version attribute from module, if any."""
     VERSION_ATTRS = [
-        '__version__',
-        'VERSION',
-        'version',
+        "__version__",
+        "VERSION",
+        "version",
     ]
     for v in VERSION_ATTRS:
         if hasattr(m, v):
@@ -38,8 +38,8 @@ def get_imported(context: dict) -> Dict[str, Optional[version_types]]:
     visited = dict()
 
     def process_module(*args):
-        (name, module), = args
-        n = getattr(module, '__name__', name)
+        ((name, module),) = args
+        n = getattr(module, "__name__", name)
         if ismodule(module) and n not in visited:
             visited.update({n: get_version(module)})
             try:
@@ -63,10 +63,11 @@ def get_imports(context: dict, limit: int = 0) -> str:
     return ",".join(sorted(set(imports.keys())))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import os
     import sys
     from pprint import pprint
     from pathlib import Path
     import pandas as pd
+
     pprint(get_imported(globals()))

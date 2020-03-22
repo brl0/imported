@@ -22,17 +22,18 @@ class LogPrinter:
         logging.basicConfig(handlers=[self.InterceptHandler()], level=level)
         logger.remove()
         logger.add(sys.stdout, level=level, enqueue=True)
-        logger.log(level, f'Level: {level}')
+        logger.log(level, f"Level: {level}")
         self.level = level
         self.ilogger = logger
 
     def write(self, text):
         """Log written output to a specific logger."""
-        self.ilogger.opt(depth=1).log(self.level, f':print: - {text}')
+        self.ilogger.opt(depth=1).log(self.level, f":print: - {text}")
 
     @staticmethod
-    def logprint(*args, level=logging.INFO, name='', **kwargs):
+    def logprint(*args, level=logging.INFO, name="", **kwargs):
         """Create decorator factory for logprint."""
+
         def logprintinfo(func):
             """Wrap a method so that calls to print get logged.
 
@@ -48,6 +49,7 @@ class LogPrinter:
                     return timer(func)(*arg, **kwargs)
                 finally:
                     sys.stdout = stdobak
+
             return pwrapper
 
         return logprintinfo
@@ -71,41 +73,40 @@ class LogPrinter:
                 frame = frame.f_back
                 depth += 1
 
-            logger.opt(
-                lazy=True,
-                depth=depth,
-                exception=record.exc_info,
-                ).log(level, record.getMessage())
+            logger.opt(lazy=True, depth=depth, exception=record.exc_info,).log(
+                level, record.getMessage()
+            )
 
 
 def timer(func):
     """Time wrapped function."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = datetime.now()
         start_counter = perf_counter()
-        print(f'{func.__name__} started at {start_time}.')
+        print(f"{func.__name__} started at {start_time}.")
         results = func(*args, **kwargs)
         end_time = datetime.now()
         end_counter = perf_counter()
         total_time = end_time - start_time
-        print(f'Time elapsed: {total_time}.')
-        total_sec = (end_counter - start_counter)
-        print(f'Seconds elapsed: {total_sec}s.')
+        print(f"Time elapsed: {total_time}.")
+        total_sec = end_counter - start_counter
+        print(f"Seconds elapsed: {total_sec}s.")
         return results
 
     return wrapper
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from time import sleep
 
     @LogPrinter.logprint(level=logging.INFO)
     @timer
     def func(s: str):
         """Test wrappers."""
-        logger.info('test logger')
-        logging.info('test logging')
+        logger.info("test logger")
+        logging.info("test logging")
         sleep(1)
         print(s)
 

@@ -7,10 +7,8 @@ from typing import Dict, List, Union
 
 INSTALL_REQUIRES: List[str] = []
 EXTRAS_REQUIRES: Dict[str, List[str]] = {
-    "tests": [
-        "pytest",
-        ],
-    }
+    "tests": ["pytest",],
+}
 
 
 def find_version(fname: Union[Path, str]) -> str:
@@ -20,7 +18,7 @@ def find_version(fname: Union[Path, str]) -> str:
     """
     version = ""
     reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
-    for line in Path(fname).read_text().split('\n'):
+    for line in Path(fname).read_text().split("\n"):
         m = reg.match(line)
         if m:
             version = m.group(1)
@@ -30,7 +28,7 @@ def find_version(fname: Union[Path, str]) -> str:
     return version
 
 
-version = find_version('imported/__init__.py')
+version = find_version("imported/__init__.py")
 long_description = Path("README.md").read_text()
 
 setup(
@@ -38,7 +36,7 @@ setup(
     version=version,
     author="Brian Larsen",
     author_email="bmelarsen+imported@gmail.com",
-    license='MIT',
+    license="MIT",
     description="Simple function to list imported modules",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -51,5 +49,5 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires=">=3.6",
 )

@@ -1,0 +1,9 @@
+pylama
+prospector
+bandit
+pydocstyle
+pycodestyle
+flake8
+mypy
+black
+isort
