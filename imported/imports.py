@@ -1,5 +1,4 @@
 """Inspect imports."""
-from functools import lru_cache
 from inspect import getmembers, ismodule
 from types import ModuleType
 from typing import Dict, Optional, Union
@@ -37,37 +36,27 @@ def get_imported(context: dict) -> Dict[str, Optional[version_types]]:
     """
     visited = dict()
 
-    def process_module(*args):
+    def _process_module(*args):
         ((name, module),) = args
         n = getattr(module, "__name__", name)
         if ismodule(module) and n not in visited:
             visited.update({n: get_version(module)})
             try:
-                [*map(process_module, getmembers(module, ismodule))]
+                [*map(_process_module, getmembers(module, ismodule))]
             except:
                 pass
 
-    [*map(process_module, context.items())]
+    [*map(_process_module, context.items())]
 
-    return [*filter(lambda _: _[1] is not None, visited.items())]
+    return dict([*filter(lambda _: _[1] is not None, visited.items())])
 
 
-def get_imports(context: dict, limit: int = 0) -> str:
+def get_imports(context: dict) -> str:
     """Create string list of imported modules in given context.
 
     Only outputs modules from given context that have
     conventional version attributes.
     Context is typically globals() or locals().
     """
-    imports = get_imported(context, limit)
+    imports = get_imported(context)
     return ",".join(sorted(set(imports.keys())))
-
-
-if __name__ == "__main__":
-    import os
-    import sys
-    from pprint import pprint
-    from pathlib import Path
-    import pandas as pd
-
-    pprint(get_imported(globals()))

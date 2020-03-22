@@ -1,6 +1,7 @@
 """Tests configuration."""
 
 import pytest
+from scripttest import TestFileEnvironment
 
 
 class Module:
@@ -23,3 +24,8 @@ def context():
     import sys
 
     yield locals()
+
+
+@pytest.fixture
+def env():
+    yield TestFileEnvironment(cwd=".",)

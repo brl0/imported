@@ -64,7 +64,7 @@ class LogPrinter:
             """Get corresponding Loguru level if it exists."""
             try:
                 level = logger.level(record.levelname).name
-            except ValueError:
+            except (ValueError, AttributeError):
                 level = record.levelno
 
             # Find caller from where originated the logged message
@@ -96,18 +96,3 @@ def timer(func):
         return results
 
     return wrapper
-
-
-if __name__ == "__main__":
-    from time import sleep
-
-    @LogPrinter.logprint(level=logging.INFO)
-    @timer
-    def func(s: str):
-        """Test wrappers."""
-        logger.info("test logger")
-        logging.info("test logging")
-        sleep(1)
-        print(s)
-
-    func(__name__)
