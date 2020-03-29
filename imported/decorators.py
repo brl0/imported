@@ -1,11 +1,11 @@
 """Misc function decorators."""
 from datetime import datetime
-from functools import wraps
 import logging
 import sys
 from time import perf_counter
 
 from loguru import logger
+from wrapt import decorator
 
 
 class LogPrinter:
@@ -34,23 +34,19 @@ class LogPrinter:
     def logprint(*args, level=logging.INFO, name="", **kwargs):
         """Create decorator factory for logprint."""
 
-        def logprintinfo(func):
+        @decorator
+        def logprintinfo(wrapped, instance, args, kwargs):
             """Wrap a method so that calls to print get logged.
 
             https://wiki.python.org/moin/PythonDecoratorLibrary#Unimplemented_function_replacement  # noqa
             """
-
-            @wraps(func)
-            def pwrapper(*arg, **kwargs):
-                stdobak = sys.stdout
-                lpinstance = LogPrinter(level)
-                sys.stdout = lpinstance
-                try:
-                    return timer(func)(*arg, **kwargs)
-                finally:
-                    sys.stdout = stdobak
-
-            return pwrapper
+            stdobak = sys.stdout
+            lpinstance = LogPrinter(level)
+            sys.stdout = lpinstance
+            try:
+                return timer(wrapped)(*args, **kwargs)
+            finally:
+                sys.stdout = stdobak
 
         return logprintinfo
 
@@ -78,24 +74,17 @@ class LogPrinter:
             )
 
 
-def timer(func):
+@decorator
+def timer(wrapped, instance, args, kwargs):
     """Time wrapped function."""
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = datetime.now()
-        start_counter = perf_counter()
-        print(f"{func.__name__} started at {start_time}.")
-        results = func(*args, **kwargs)
-        end_time = datetime.now()
-        end_counter = perf_counter()
-        total_time = end_time - start_time
-        print(f"Time elapsed: {total_time}.")
-        total_sec = end_counter - start_counter
-        print(f"Seconds elapsed: {total_sec}s.")
-        return results
-
-    return wrapper
-
-
-# TODO: Consider using wrapt, https://github.com/GrahamDumpleton/wrapt
+    start_time = datetime.now()
+    start_counter = perf_counter()
+    print(f"{wrapped.__name__} started at {start_time}.")
+    results = wrapped(*args, **kwargs)
+    end_time = datetime.now()
+    end_counter = perf_counter()
+    total_time = end_time - start_time
+    print(f"Time elapsed: {total_time}.")
+    total_sec = end_counter - start_counter
+    print(f"Seconds elapsed: {total_sec}s.")
+    return results
