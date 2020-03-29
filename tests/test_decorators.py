@@ -27,14 +27,16 @@ def test_script(env):
         expect_error=True,
     )
 
+    output = result.stdout + "\n" + result.stderr
+
     # Test logger object
-    assert " - test logger" in result.stdout
+    assert "test_logger" in output
 
     # Test logging library interception
-    assert " - test logging" in result.stdout
+    assert "test_logging" in output
 
     # Test print interception
-    assert ":print: - test print" in result.stdout
+    assert "test_print" in output
 
     # Test timer output
-    assert " - :print: - Time elapsed: " in result.stdout
+    assert " - :print: - Time elapsed: " in output

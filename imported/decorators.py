@@ -96,3 +96,6 @@ def timer(func):
         return results
 
     return wrapper
+
+
+# TODO: Consider using wrapt, https://github.com/GrahamDumpleton/wrapt
