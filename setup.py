@@ -5,9 +5,14 @@ import re
 from setuptools import setup, find_packages
 from typing import Dict, List, Union
 
-INSTALL_REQUIRES: List[str] = []
+INSTALL_REQUIRES: List[str] = ["loguru", "wrapt"]
 EXTRAS_REQUIRES: Dict[str, List[str]] = {
-    "tests": ["pytest",],
+    "tests": [
+        "pytest",
+        "scripttest",
+        "coverage",
+        "pytest-cov",
+        ],
 }
 
 

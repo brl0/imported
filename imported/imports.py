@@ -24,7 +24,7 @@ def has_version(m: ModuleType) -> bool:
     """Check if module has a convential version attribute."""
     if get_version(m):
         return True
-    return False
+    return False  # pragma: no cover
 
 
 def get_imported(context: dict) -> Dict[str, Optional[version_types]]:
@@ -43,7 +43,7 @@ def get_imported(context: dict) -> Dict[str, Optional[version_types]]:
             visited.update({n: get_version(module)})
             try:
                 [*map(_process_module, getmembers(module, ismodule))]
-            except:
+            except:  # pragma: no cover
                 pass
 
     [*map(_process_module, context.items())]

@@ -1,10 +1,16 @@
 """Script to test decorators module output."""
-
 import logging
 
 from loguru import logger
 
-from decorators import LogPrinter, timer
+try:
+    from decorators import LogPrinter
+except ImportError:  # pragma: no cover
+    try:
+        from .decorators import LogPrinter
+    except ImportError:
+        from imported.decorators import LogPrinter
+
 
 if __name__ == "__main__":
 

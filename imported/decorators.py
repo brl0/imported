@@ -60,7 +60,7 @@ class LogPrinter:
             """Get corresponding Loguru level if it exists."""
             try:
                 level = logger.level(record.levelname).name
-            except (ValueError, AttributeError):
+            except (ValueError, AttributeError):  # pragma: no cover
                 level = record.levelno
 
             # Find caller from where originated the logged message
